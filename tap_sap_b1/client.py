@@ -18,7 +18,9 @@ SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 class SAPB1Stream(RESTStream):
     """SAPB1 stream class."""
 
-    url_base = "https://205.251.136.61:50000/b1s/v1"
+    @property
+    def url_base(self) -> str:
+        return self.config["api_url"]
 
     records_jsonpath = "$.value[*]"  # Or override `parse_response`.
 

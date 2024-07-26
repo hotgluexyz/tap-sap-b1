@@ -27,6 +27,11 @@ class TapSAPB1(Tap):
             th.StringType,
         ),
         th.Property(
+            "api_url",
+            th.StringType,
+            default="https://205.251.136.61:50000/b1s/v1"
+        ),
+        th.Property(
             "start_date",
             th.DateTimeType,
             description="The earliest record date to sync",
