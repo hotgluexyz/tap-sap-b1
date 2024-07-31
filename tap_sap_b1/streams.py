@@ -10,9 +10,9 @@ from tap_sap_b1.client import SAPB1Stream
 
 class InvoicesStream(SAPB1Stream):
     name = "invoices"
-    path = "/PurchaseInvoices?$select=DocEntry,DocNum,DocType&$filter=DocEntry ge 0 &$orderby=DocEntry&$top=50&$skip=1"
+    path = "/PurchaseInvoices?$select=DocEntry,DocNum,DocType,DocTotal,DocDate&$orderby=DocEntry&$top=50"
     primary_keys = ["DocNum"]
-    replication_key = None
+    replication_key = "DocDate"
 
     schema = th.PropertiesList(
         th.Property(
@@ -26,6 +26,14 @@ class InvoicesStream(SAPB1Stream):
         th.Property(
             "DocType",
             th.StringType,
+        ),
+        th.Property(
+            "DocTotal",
+            th.NumberType,
+        ),
+        th.Property(
+            "DocDate",
+            th.DateTimeType,
         ),
         th.Property(
             "odata.etag",

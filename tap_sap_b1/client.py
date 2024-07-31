@@ -31,15 +31,16 @@ class SAPB1Stream(RESTStream):
         Returns:
             An authenticator instance.
         """
-        # TODO: Not sure if this should be here or somewhere else
-        r = requests.post(f"{self.url_base}/Login", json={
-          "CompanyDB": self.config.get("dbname"),
-          "Password": self.config.get("password"),
-          "UserName": self.config.get("username")
-        })
+        payload = {
+            "CompanyDB": self.config.get("dbname"),
+            "Password": self.config.get("password"),
+            "UserName": self.config.get("username"),
+        }
+        r = requests.post(f"{self.url_base}/Login", json=payload, verify=False)
+        data = r.json()
         self.logger.info(f"Made login request. Response={r.status_code} {r.text}")
 
-        return None
+        return data.get("SessionId")
 
     @property
     def http_headers(self) -> dict:
@@ -87,6 +88,13 @@ class SAPB1Stream(RESTStream):
             A dictionary of URL query parameters.
         """
         params: dict = {}
+
+        if self.replication_key:
+            replication_date = self.get_starting_timestamp(context)
+            if replication_date:
+                replication_date = replication_date.strftime("%Y-%m-%d")
+                params["$filter"] = f"{self.replication_key} ge '{replication_date}'"
+
         if next_page_token:
             # Extract the query part from the URL
             parsed_url = urlparse(next_page_token)
@@ -121,3 +129,45 @@ class SAPB1Stream(RESTStream):
         """
         # TODO: Delete this method if not needed.
         return row
+
+    def build_prepared_request(
+        self,
+        *args: Any,
+        **kwargs: Any,
+    ) -> requests.PreparedRequest:
+        request = requests.Request(
+            *args,
+            cookies={"B1SESSION": self.authenticator},
+            **kwargs,
+        )
+        return self.requests_session.prepare_request(request)
+
+    def _request(
+        self,
+        prepared_request: requests.PreparedRequest,
+        context: dict | None,
+    ) -> requests.Response:
+        """TODO.
+
+        Args:
+            prepared_request: TODO
+            context: Stream partition or context dictionary.
+
+        Returns:
+            TODO
+        """
+        response = self.requests_session.send(
+            prepared_request, timeout=self.timeout, verify=False
+        )
+        self._write_request_duration_log(
+            endpoint=self.path,
+            response=response,
+            context=context,
+            extra_tags=(
+                {"url": prepared_request.path_url}
+                if self._LOG_REQUEST_METRIC_URLS
+                else None
+            ),
+        )
+        self.validate_response(response)
+        return response
