@@ -10,7 +10,7 @@ from tap_sap_b1.client import SAPB1Stream
 
 class InvoicesStream(SAPB1Stream):
     name = "invoices"
-    path = "/PurchaseInvoices?$select=DocEntry,DocNum,DocType,DocTotal,DocDate&$orderby=DocDate&$top=30"
+    path = "/PurchaseInvoices?$select=DocEntry,DocNum,DocType,DocTotal,DocDate&$orderby=DocDate"
     primary_keys = ["DocNum"]
     replication_key = "DocDate"
 
