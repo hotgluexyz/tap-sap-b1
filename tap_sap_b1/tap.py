@@ -46,6 +46,7 @@ class TapSAPB1(Tap):
         """
         return [
             streams.InvoicesStream(self),
+            streams.InvoiceDetailsStream(self),
         ]
 
 
