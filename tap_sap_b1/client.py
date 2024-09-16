@@ -11,6 +11,9 @@ from urllib.parse import parse_qs, urlparse
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.streams import RESTStream
 
+import singer
+from singer import StateMessage
+
 _Auth = Callable[[requests.PreparedRequest], requests.PreparedRequest]
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
@@ -171,3 +174,15 @@ class SAPB1Stream(RESTStream):
         )
         self.validate_response(response)
         return response
+
+
+    def _write_state_message(self) -> None:
+        """Write out a STATE message with the latest state."""
+        tap_state = self.tap_state
+
+        if tap_state and tap_state.get("bookmarks"):
+            for stream_name in tap_state.get("bookmarks").keys():
+                if tap_state["bookmarks"][stream_name].get("partitions"):
+                    tap_state["bookmarks"][stream_name] = {"partitions": []}
+
+        singer.write_message(StateMessage(value=tap_state))
