@@ -11,8 +11,7 @@ from urllib.parse import parse_qs, urlparse
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.streams import RESTStream
 
-import singer
-from singer import StateMessage
+import singer_sdk._singerlib as singer
 
 _Auth = Callable[[requests.PreparedRequest], requests.PreparedRequest]
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
@@ -185,4 +184,4 @@ class SAPB1Stream(RESTStream):
                 if tap_state["bookmarks"][stream_name].get("partitions"):
                     tap_state["bookmarks"][stream_name] = {"partitions": []}
 
-        singer.write_message(StateMessage(value=tap_state))
+        singer.write_message(singer.StateMessage(value=tap_state))
