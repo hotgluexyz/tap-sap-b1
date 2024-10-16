@@ -2,6 +2,8 @@
 
 import json
 import requests
+
+from dateutil.parser import parse
 from singer_sdk import typing as th  # JSON Schema typing helpers
 
 from tap_sap_b1.client import SAPB1Stream
@@ -142,7 +144,7 @@ class ItemGroupsQueryStream(SAPB1Stream):
             th.IntegerType,
         ),
         th.Property(
-            "Description",
+            "Dscription",
             th.StringType,
         ),
         th.Property(
@@ -150,11 +152,11 @@ class ItemGroupsQueryStream(SAPB1Stream):
             th.StringType,
         ),
         th.Property(
-            "ItemGrpCod",
+            "ItmsGrpCod",
             th.IntegerType,
         ),
         th.Property(
-            "ItemGrpNam",
+            "ItmsGrpNam",
             th.StringType,
         ),
         th.Property(
