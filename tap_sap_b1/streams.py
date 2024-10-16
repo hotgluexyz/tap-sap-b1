@@ -191,7 +191,26 @@ class ItemGroupsQueryStream(SAPB1Stream):
         data = {
             "SqlCode": f"{self.query_name}",
             "SqlName": "QryItemGroups",
-            "SqlText": "Select T0.[DocEntry],T0.[DocNum],T0.[DocDate],T0.[CardCode],T0.[CardName] , T1.[ItemCode], T1.[Dscription], T1.[LineNum], T1.[Quantity], T1.[Price], T1.[LineTotal]  , T2.[ItmsGrpCod]  , T3.[ItmsGrpNam] from [OPCH] T0   inner join [PCH1] T1 on T0.[DocEntry] = T1.[DocEntry]      inner join [OITM] T2 on T1.[ItemCode] = T2.[ItemCode] inner join [OITB] T3 on T2.[ItmsGrpCod] = T3.[ItmsGrpCod] where T2.[ItmsGrpCod]  = :GroupCode and T0.[DocDate] >= :StartDate and T0.[DocDate] <= :EndDate"
+            "SqlText": """SELECT T0.[DocEntry],
+                            T0.[DocNum],
+                            T0.[DocDate],
+                            T0.[CardCode],
+                            T0.[CardName],
+                            T1.[ItemCode],
+                            T1.[Dscription],
+                            T1.[LineNum],
+                            T1.[Quantity],
+                            T1.[Price],
+                            T1.[LineTotal],
+                            T2.[ItmsGrpCod],
+                            T3.[ItmsGrpNam]
+                        FROM [OPCH] T0
+                        INNER JOIN [PCH1] T1 ON T0.[DocEntry] = T1.[DocEntry]
+                        INNER JOIN [OITM] T2 ON T1.[ItemCode] = T2.[ItemCode]
+                        INNER JOIN [OITB] T3 ON T2.[ItmsGrpCod] = T3.[ItmsGrpCod]
+                        WHERE T2.[ItmsGrpCod] = :GroupCode
+                        AND T0.[DocDate] >= :StartDate
+                        AND T0.[DocDate] <= :EndDate"""
         }
         prepared_request = self.build_prepared_request(method="POST", url=url, data=json.dumps(data), headers=self.http_headers, params=self.get_url_params(context, None))
         decorated_request = self.request_decorator(self._request)
