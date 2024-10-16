@@ -194,13 +194,15 @@ class ItemGroupsQueryStream(SAPB1Stream):
             "SqlText": "Select T0.[DocEntry],T0.[DocNum],T0.[DocDate],T0.[CardCode],T0.[CardName] , T1.[ItemCode], T1.[Dscription], T1.[LineNum], T1.[Quantity], T1.[Price], T1.[LineTotal]  , T2.[ItmsGrpCod]  , T3.[ItmsGrpNam] from [OPCH] T0   inner join [PCH1] T1 on T0.[DocEntry] = T1.[DocEntry]      inner join [OITM] T2 on T1.[ItemCode] = T2.[ItemCode] inner join [OITB] T3 on T2.[ItmsGrpCod] = T3.[ItmsGrpCod] where T2.[ItmsGrpCod]  = :GroupCode and T0.[DocDate] >= :StartDate and T0.[DocDate] <= :EndDate"
         }
         prepared_request = self.build_prepared_request(method="POST", url=url, data=json.dumps(data), headers=self.http_headers, params=self.get_url_params(context, None))
-        response = self._request(prepared_request, context)
+        decorated_request = self.request_decorator(self._request)
+        response = decorated_request(prepared_request, context)
         return response
     
     def delete_query(self, context):
         url = self.url_base + f"/SQLQueries('{self.query_name}')"
         prepared_request = self.build_prepared_request(method="DELETE", url=url)
-        response = self._request(prepared_request, context)
+        decorated_request = self.request_decorator(self._request)
+        response = decorated_request(prepared_request, context)
         return response
     
     def _sync_records(
