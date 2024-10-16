@@ -177,13 +177,21 @@ class ItemGroupsQueryStream(SAPB1Stream):
 
     @property
     def path(self):
-        group_code = self.config.get('group_code')  # format should be an integer
-        start_date = self.config.get('start_date')  # format should be "YYYY-MM-DD"
-        if 'T' in start_date:
-            start_date = start_date.split('T')[0]
-        end_date = self.config.get('end_date')  # format should be "YYYY-MM-DD"
-        if 'T' in end_date:
-            end_date = end_date.split('T')[0]
+        group_code = self.config.get('group_code')
+        try:
+            int(group_code)
+        except Exception as exc:
+            raise Exception(f"Wrong group_code provided. group_code={group_code}") from exc
+        try:
+            start_date = self.config.get('start_date')
+            start_date = parse(start_date).strftime("%Y-%m-%d")
+        except Exception as exc:
+            raise Exception(f"Wrong start_date provided. start_date={start_date}") from exc
+        try:
+            end_date = self.config.get('end_date')
+            end_date = parse(end_date).strftime("%Y-%m-%d")
+        except Exception as exc:
+            raise Exception(f"Wrong end_date provided. end_date={end_date}") from exc
         return f"/SQLQueries('{self.query_name}')/List?GroupCode={group_code}&StartDate='{start_date}'&EndDate='{end_date}'"
     
     def create_query(self, context):
