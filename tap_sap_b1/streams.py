@@ -207,7 +207,7 @@ class ItemGroupsQueryStream(SAPB1Stream):
         self,
         context
     ):
-        # self.delete_query(context)
+    
         try:
             self.create_query(context)
         except QueryAlreadyExistsException:
@@ -217,10 +217,9 @@ class ItemGroupsQueryStream(SAPB1Stream):
         try:
             yield from super()._sync_records(context)
         except Exception as exc:
-            self.delete_query(context)
             raise Exception(f"Sync error during query {self.query_name}. group_code={self.config.get('group_code')}. start_date={self.config.get('start_date')}. end_date={self.config.get('end_date')}") from exc
-
-        self.delete_query(context)
+        finally:
+            self.delete_query(context)
     
     def validate_response(self, response: requests.Response) -> None:
         if response.status_code == 400 and response.json().get("error", {}).get("code") == -2035:
